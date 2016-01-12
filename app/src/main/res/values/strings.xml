@@ -1,0 +1,22 @@
+<resources>
+    <string name="app_name">Econ Square Study</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="login">Login</string>
+    <string name="submit_btn">Submit</string>
+    <string name="email_entry">E-mail_address: </string>
+    <string name="email_entry_confirm">Confirm E-mail_address: </string>
+    <string name="email_entry_hint">johndoe@gmail.com</string>
+    <string name="login_note">Please enter the e-mail address you used to register.
+        Remember this is the e-mail address that will be used to pay you via pay-pal.</string>
+    <string name="email_error">E-mails do not match</string>
+    <string name="cancel_btn">Cancel</string>
+    <string name="rest_text">Rest Screen</string>
+    <string name="points_text">Number of points earned: (formula: #
+        red squares pressed + G × # gold squares pressed): %1$d</string>
+    <string name="remaining_time">Remaining time on screen: %1$d</string>
+    <string name="start_btn">Start task</string>
+    <string name="parameters_text">Minimum time: %1$d, Maximum time: %2$d, red worth 1 pt, gold worth
+    %3$d pt(s), gold appears at probability %4$f, maximum active time: %5$d, maximum rest time: %6$d</string>
+</resources>
