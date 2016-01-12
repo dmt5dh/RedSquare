@@ -41,6 +41,7 @@ public class ParametersFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
         TextView paramsView = (TextView) view.findViewById(R.id.parametersView);
         String params = String.format(getResources().getString(R.string.parameters_text),
                 MainActivity.MANDATORY_WORK_TIME,

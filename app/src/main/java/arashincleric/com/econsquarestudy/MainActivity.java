@@ -2,15 +2,19 @@ package arashincleric.com.econsquarestudy;
 
 
 import android.app.ActionBar;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.CountDownTimer;
+import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,17 +22,18 @@ import android.widget.Toast;
 public class MainActivity extends FragmentActivity
         implements EnterEmailFragment.OnEnterEmailFragmentInteractionListener,
         ParametersFragment.OnParametersFragmentInteractionListener,
-        RestScreenFragment.OnRestScreenFragmentInteractionListener{
+        RestScreenFragment.OnRestScreenFragmentInteractionListener,
+        ActiveScreenFragment.OnActiveScreenFragmentInteractionListener{
 
-    //In milliseconds
-    public static int MANDATORY_WORK_TIME = 0;
-    public static int MAXIMUM_WORK_TIME = 0;
-    public static int MAXIMUM_ACTIVE_ON_TIME = 0;
+    //IN MILLISECONDS
+    public static long MANDATORY_WORK_TIME = 15000;
+    public static long MAXIMUM_WORK_TIME = 30000;
+    public static int MAXIMUM_ACTIVE_ON_TIME = 3000;
     public static int MAXIMUM_REST_TIME = 5000;
-    public static int GOLD_SCORE_WEIGHT = 1;
-    public static double GOLD_PROBABILITY = 0.5;
+    public static double GOLD_SCORE_WEIGHT = 1.25;
+    public static double GOLD_PROBABILITY = 0.9;
 
-    public int points = 0;
+    public double points;
 
 
     private LinearLayout taskInfo;
@@ -37,6 +42,9 @@ public class MainActivity extends FragmentActivity
     private FragmentManager fragmentManager = getSupportFragmentManager();
     private Fragment mContent;
     private String currentUser = null;
+    private Chronometer totalTimer;
+    private boolean passedMandatoryTime; //flag to fire the mandatory time code once
+    private Button questionnaireBtn;
 
 
     @Override
@@ -44,15 +52,28 @@ public class MainActivity extends FragmentActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        points = 0;
+        passedMandatoryTime = false;
+
         //Upper information bar
-        taskInfo = (LinearLayout) findViewById(R.id.taskInfo);
+        taskInfo = (LinearLayout) findViewById(R.id.taskInfoContainer);
         pointsView = (TextView) findViewById(R.id.pointsView);
         String pointsViewText = String.format(getResources().getString(R.string.points_text), points);
         pointsView.setText(pointsViewText);
         remainingTimerView = (TextView) findViewById(R.id.remainingTimer);
         taskInfo.setVisibility(View.GONE);
 
+        questionnaireBtn = (Button)findViewById(R.id.questionnaireBtn);
+        questionnaireBtn.setVisibility(View.GONE);
+        questionnaireBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                goToQuestionnaire();
+            }
+        });
+
         FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.disallowAddToBackStack();
         mContent = EnterEmailFragment.newInstance();
         transaction.add(R.id.fragmentContainer, mContent).commit();
 
@@ -94,38 +115,75 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void startTask(){
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        mContent = RestScreenFragment.newInstance(MAXIMUM_REST_TIME);
-        transaction.replace(R.id.fragmentContainer, mContent).commit();
+        goToRest();
         taskInfo.setVisibility(View.VISIBLE);
-//        //Listener does not hit until first tick "skipping" a second
-//        performTick(MAXIMUM_REST_TIME);
-//
-//        new CountDownTimer(MAXIMUM_REST_TIME, 100){
-//            public void onTick(long millisUntilFinished){
-//                performTick(Math.round(millisUntilFinished));
-//            }
-//
-//            public void onFinish(){
-//                String time = String.format(getResources().getString(R.string.remaining_time), 0);
-//                remainingTimerView.setText(time);
-//                Toast.makeText(getBaseContext(), "hello", Toast.LENGTH_SHORT).show();
-//            }
-//        }.start();
     }
-//
-//    public void performTick(long millisUntilFinished){
-//        String time = String.format(getResources().getString(R.string.remaining_time),
-//                (millisUntilFinished / 1000) + 1);
-//        remainingTimerView.setText(time);
-//    }
+
     @Override
-    public void countDown(String time){
+    public void countDownRest(String time){
+        remainingTimerView.setText(time);
+    }
+
+    @Override
+    public void countDownActive(String time){
         remainingTimerView.setText(time);
     }
 
     @Override
     public void goToActive(){
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        mContent = ActiveScreenFragment.newInstance(MAXIMUM_ACTIVE_ON_TIME, GOLD_PROBABILITY);
+        transaction.replace(R.id.fragmentContainer, mContent).commit();
 
+        if(totalTimer == null){
+            totalTimer = (Chronometer) findViewById(R.id.totalTimer);
+            totalTimer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+                @Override
+                public void onChronometerTick(Chronometer chronometer) {
+                    long startTime = chronometer.getBase();
+                    long currentTime = SystemClock.elapsedRealtime();
+                    long timePassed = currentTime - startTime;
+                    if(timePassed >= MAXIMUM_WORK_TIME){
+                        goToQuestionnaire();
+                    }
+                    else if(!passedMandatoryTime && timePassed >= MANDATORY_WORK_TIME){
+                        passedMandatoryTime = true;
+                        questionnaireBtn.setVisibility(View.VISIBLE);
+                    }
+                }
+            });
+            totalTimer.setBase(SystemClock.elapsedRealtime());
+            totalTimer.start();
+        }
+    }
+
+    public void goToQuestionnaire(){
+        //Detach and stop timers of current fragment
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        transaction.remove(mContent).commit();
+        fragmentManager.executePendingTransactions();
+
+        Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
+        startActivity(intent);
+        finish();
+
+    }
+
+    @Override
+    public void goToRest(){
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        mContent = RestScreenFragment.newInstance(MAXIMUM_REST_TIME);
+        transaction.replace(R.id.fragmentContainer, mContent).commit();
+    }
+
+    public void goldClicked(){
+        points += GOLD_SCORE_WEIGHT;
+        String pointsViewText = String.format(getResources().getString(R.string.points_text), points);
+        pointsView.setText(pointsViewText);
+    }
+    public void redClicked(){
+        points ++;
+        String pointsViewText = String.format(getResources().getString(R.string.points_text), points);
+        pointsView.setText(pointsViewText);
     }
 }

@@ -14,9 +14,13 @@
     <string name="cancel_btn">Cancel</string>
     <string name="rest_text">Rest Screen</string>
     <string name="points_text">Number of points earned: (formula: #
-        red squares pressed + G × # gold squares pressed): %1$d</string>
+        red squares pressed + G × # gold squares pressed): %1$.2f</string>
     <string name="remaining_time">Remaining time on screen: %1$d</string>
     <string name="start_btn">Start task</string>
+    <string name="goto_questionnaire_btn">Go to questionnaire</string>
+    <string name="goto_rest_btn">Go to next screen</string>
+
     <string name="parameters_text">Minimum time: %1$d, Maximum time: %2$d, red worth 1 pt, gold worth
-    %3$d pt(s), gold appears at probability %4$f, maximum active time: %5$d, maximum rest time: %6$d</string>
+    %3$.2f pt(s), gold appears at probability %4$.3f, maximum active time: %5$d, maximum rest time: %6$d</string>
+    <string name="title_activity_questionnaire">QuestionnaireActivity</string>
 </resources>

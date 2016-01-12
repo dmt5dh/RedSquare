@@ -13,8 +13,11 @@ import android.widget.Toast;
 public class RestScreenFragment extends Fragment {
 
     private OnRestScreenFragmentInteractionListener mListener;
+    private CountDownTimer timer;
 
     public static String ARG_MAX_REST = "ARG_MAX_REST";
+
+    private long millisTimeRemaining;
 
     /**
      * Use this factory method to create a new instance of
@@ -39,7 +42,7 @@ public class RestScreenFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
         if (getArguments() != null) {
-
+            millisTimeRemaining = getArguments().getInt(ARG_MAX_REST);
         }
     }
 
@@ -47,7 +50,7 @@ public class RestScreenFragment extends Fragment {
         String time = String.format(getResources().getString(R.string.remaining_time),
                 (millisUntilFinished / 1000) + 1);
 //        remainingTimerView.setText(time);
-        mListener.countDown(time);
+        mListener.countDownRest(time);
     }
 
     @Override
@@ -59,12 +62,13 @@ public class RestScreenFragment extends Fragment {
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState){
+        super.onViewCreated(view, savedInstanceState);
         if(getArguments() != null){
             int maxScreenTime = getArguments().getInt(ARG_MAX_REST);
             //Listener does not hit until first tick "skipping" a second
             performTick(maxScreenTime);
 
-            new CountDownTimer(maxScreenTime, 100) {
+            timer = new CountDownTimer(maxScreenTime, 100) {
                 public void onTick(long millisUntilFinished) {
                     performTick(Math.round(millisUntilFinished));
                 }
@@ -97,6 +101,7 @@ public class RestScreenFragment extends Fragment {
 
     @Override
     public void onDetach() {
+        timer.cancel();
         super.onDetach();
         mListener = null;
     }
@@ -112,7 +117,7 @@ public class RestScreenFragment extends Fragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnRestScreenFragmentInteractionListener {
-        public void countDown(String time);
+        public void countDownRest(String time);
         public void goToActive();
     }
 
