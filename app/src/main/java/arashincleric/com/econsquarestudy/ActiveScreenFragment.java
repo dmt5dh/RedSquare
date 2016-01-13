@@ -1,12 +1,7 @@
 package arashincleric.com.econsquarestudy;
 
-import android.app.Activity;
 import android.content.Context;
-import android.net.Uri;
 import android.os.Bundle;
-import android.os.CountDownTimer;
-import android.support.v4.app.Fragment;
-import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,16 +9,12 @@ import android.view.ViewTreeObserver;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
-import android.widget.TextView;
-
-import org.w3c.dom.Text;
 
 import java.util.Random;
 
 
-public class ActiveScreenFragment extends Fragment {
+public class ActiveScreenFragment extends TaskScreenFragment {
 
-    private static String ARG_MAX_ACTIVE_TIME = "ARG_MAX_ACTIVE_TIME";
     private static String ARG_GOLD_PROBABILITY = "ARG_GOLD_PROBABILITY";
 
     private ImageView redSquare;
@@ -36,9 +27,7 @@ public class ActiveScreenFragment extends Fragment {
     private RelativeLayout headLayout;
     private Button gotoRestBtn;
 
-    private OnActiveScreenFragmentInteractionListener mListener;
-    private CountDownTimer timer;
-    private long millisTimeRemaining;
+    private OnActiveScreenFragmentInteractionListener mActiveListener;
 
     /**
      * Use this factory method to create a new instance of
@@ -51,7 +40,7 @@ public class ActiveScreenFragment extends Fragment {
                                                    double goldPropability) {
         ActiveScreenFragment fragment = new ActiveScreenFragment();
         Bundle args = new Bundle();
-        args.putInt(ARG_MAX_ACTIVE_TIME, maxActiveTime);
+        args.putInt(TaskScreenFragment.ARG_MAX_SCREEN_TIME, maxActiveTime);
         args.putDouble(ARG_GOLD_PROBABILITY, goldPropability);
         fragment.setArguments(args);
         return fragment;
@@ -68,7 +57,6 @@ public class ActiveScreenFragment extends Fragment {
         random = new Random();
 
         if (getArguments() != null) {
-            millisTimeRemaining = getArguments().getInt(ARG_MAX_ACTIVE_TIME);
         }
     }
 
@@ -83,16 +71,14 @@ public class ActiveScreenFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (getArguments() != null) {
-//            TextView t = (TextView) view.findViewById(R.id.textView);
-//            int maxScreenTime = getArguments().getInt(ARG_MAX_ACTIVE_TIME);
-//            t.setText(Integer.toString(maxScreenTime));
         }
 
         gotoRestBtn = (Button)view.findViewById(R.id.gotoRestBtn);
+        gotoRestBtn.setVisibility(View.GONE);
         gotoRestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: rest button
+                mTaskListener.switchTaskScreen(isActiveScreen());
             }
         });
 
@@ -115,49 +101,11 @@ public class ActiveScreenFragment extends Fragment {
             }
         });
 
-//        int maxScreenTime = getArguments().getInt(ARG_MAX_ACTIVE_TIME);
-//        //Listener does not hit until first tick "skipping" a second
-//        performTick(maxScreenTime);
-//
-//        timer = new CountDownTimer(maxScreenTime, 100) {
-//            public void onTick(long millisUntilFinished) {
-//                millisTimeRemaining = millisUntilFinished;
-//                performTick(Math.round(millisUntilFinished));
-//            }
-//
-//            public void onFinish() {
-//                performTick(0);
-//                mListener.goToRest();
-//            }
-//        }.start();
+        int maxScreenTime = getArguments().getInt(TaskScreenFragment.ARG_MAX_SCREEN_TIME);
 
+        performTick(maxScreenTime);
         startTimer();
 
-    }
-
-    public void startTimer(){
-        timer = new CountDownTimer(millisTimeRemaining, 100) {
-            public void onTick(long millisUntilFinished) {
-                millisTimeRemaining = millisUntilFinished;
-                performTick(Math.round(millisUntilFinished));
-            }
-
-            public void onFinish() {
-                performTick(0);
-                mListener.goToRest();
-            }
-        }.start();
-    }
-
-    public void pauseTimer(){
-        timer.cancel();
-    }
-
-    public void performTick(long millisUntilFinished){
-        String time = String.format(getResources().getString(R.string.remaining_time),
-                (millisUntilFinished / 1000) + 1);
-//        remainingTimerView.setText(time);
-        mListener.countDownActive(time);
     }
 
     //Because can't do it in the listener above
@@ -192,7 +140,9 @@ public class ActiveScreenFragment extends Fragment {
         redSquare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.redClicked();
+                mActiveListener.redClicked();
+                headLayout.removeView(redSquare);
+                gotoRestBtn.setVisibility(View.VISIBLE);
             }
         });
     }
@@ -222,7 +172,8 @@ public class ActiveScreenFragment extends Fragment {
         goldSquare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mListener.goldClicked();
+                mActiveListener.goldClicked();
+                headLayout.removeView(goldSquare);
             }
         });
 
@@ -233,7 +184,7 @@ public class ActiveScreenFragment extends Fragment {
     public void onAttach(Context context) {
         super.onAttach(context);
         try {
-            mListener = (OnActiveScreenFragmentInteractionListener) context;
+            mActiveListener = (OnActiveScreenFragmentInteractionListener) context;
         } catch (ClassCastException e) {
             throw new ClassCastException(context.toString()
                     + " must implement OnActiveScreenFragmentInteractionListener");
@@ -241,10 +192,8 @@ public class ActiveScreenFragment extends Fragment {
     }
 
     @Override
-    public void onDetach() {
-        pauseTimer();
-        super.onDetach();
-        mListener = null;
+    public boolean isActiveScreen(){
+        return true;
     }
 
     /**
@@ -261,8 +210,6 @@ public class ActiveScreenFragment extends Fragment {
         // TODO: Update argument type and name
         public void goldClicked();
         public void redClicked();
-        public void countDownActive(String time);
-        public void goToRest();
     }
 
 }

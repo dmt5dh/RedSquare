@@ -1,34 +1,33 @@
 package arashincleric.com.econsquarestudy;
 
 
-import android.app.ActionBar;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.SystemClock;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class MainActivity extends FragmentActivity
         implements EnterEmailFragment.OnEnterEmailFragmentInteractionListener,
         ParametersFragment.OnParametersFragmentInteractionListener,
-        RestScreenFragment.OnRestScreenFragmentInteractionListener,
-        ActiveScreenFragment.OnActiveScreenFragmentInteractionListener{
+        ActiveScreenFragment.OnActiveScreenFragmentInteractionListener,
+        TaskScreenFragment.OnTaskScreenFragmentInteractionListener{
 
     //IN MILLISECONDS
-    public static long MANDATORY_WORK_TIME = 15000;
-    public static long MAXIMUM_WORK_TIME = 30000;
-    public static int MAXIMUM_ACTIVE_ON_TIME = 3000;
+    public static long MANDATORY_WORK_TIME = 10000;
+    public static long MAXIMUM_WORK_TIME = 60000;
+    public static int MAXIMUM_ACTIVE_ON_TIME = 8000;
     public static int MAXIMUM_REST_TIME = 5000;
     public static double GOLD_SCORE_WEIGHT = 1.25;
     public static double GOLD_PROBABILITY = 0.9;
@@ -45,6 +44,7 @@ public class MainActivity extends FragmentActivity
     private Chronometer totalTimer;
     private boolean passedMandatoryTime; //flag to fire the mandatory time code once
     private Button questionnaireBtn;
+    private long timerPausedTime;
 
 
     @Override
@@ -54,6 +54,7 @@ public class MainActivity extends FragmentActivity
 
         points = 0;
         passedMandatoryTime = false;
+        timerPausedTime = 0;
 
         //Upper information bar
         taskInfo = (LinearLayout) findViewById(R.id.taskInfoContainer);
@@ -68,7 +69,27 @@ public class MainActivity extends FragmentActivity
         questionnaireBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                goToQuestionnaire();
+                final TaskScreenFragment taskScreenFragment = (TaskScreenFragment)mContent;
+                //TODO: tinker with this for better accuracy
+                pauseTimer();
+                taskScreenFragment.pauseTimer();
+                new AlertDialog.Builder(MainActivity.this)
+                        .setMessage(R.string.questionnaire_confirm)
+                        .setPositiveButton(R.string.questionnaire_continue, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                goToQuestionnaire();
+                            }
+                        })
+                        .setNegativeButton(R.string.cancel_btn, new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                resumeTimer();
+                                taskScreenFragment.startTimer();
+                            }
+                        })
+                        .setCancelable(false)
+                        .show();
             }
         });
 
@@ -77,6 +98,16 @@ public class MainActivity extends FragmentActivity
         mContent = EnterEmailFragment.newInstance();
         transaction.add(R.id.fragmentContainer, mContent).commit();
 
+    }
+
+    public void pauseTimer(){
+        timerPausedTime = totalTimer.getBase() - SystemClock.elapsedRealtime();
+        totalTimer.stop();
+    }
+
+    public void resumeTimer(){
+        totalTimer.setBase(SystemClock.elapsedRealtime() + timerPausedTime);
+        totalTimer.start();
     }
 
     @Override
@@ -115,50 +146,50 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void startTask(){
-        goToRest();
+        switchTaskScreen(true);
         taskInfo.setVisibility(View.VISIBLE);
     }
 
     @Override
-    public void countDownRest(String time){
+    public void countDown(String time){
         remainingTimerView.setText(time);
     }
 
     @Override
-    public void countDownActive(String time){
-        remainingTimerView.setText(time);
-    }
-
-    @Override
-    public void goToActive(){
+    public void switchTaskScreen(boolean isActiveScreen){
+        //TODO: Implement this
         FragmentTransaction transaction = fragmentManager.beginTransaction();
-        mContent = ActiveScreenFragment.newInstance(MAXIMUM_ACTIVE_ON_TIME, GOLD_PROBABILITY);
-        transaction.replace(R.id.fragmentContainer, mContent).commit();
 
-        if(totalTimer == null){
-            totalTimer = (Chronometer) findViewById(R.id.totalTimer);
-            totalTimer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
-                @Override
-                public void onChronometerTick(Chronometer chronometer) {
-                    long startTime = chronometer.getBase();
-                    long currentTime = SystemClock.elapsedRealtime();
-                    long timePassed = currentTime - startTime;
-                    if(timePassed >= MAXIMUM_WORK_TIME){
-                        goToQuestionnaire();
-                    }
-                    else if(!passedMandatoryTime && timePassed >= MANDATORY_WORK_TIME){
-                        passedMandatoryTime = true;
-                        questionnaireBtn.setVisibility(View.VISIBLE);
-                    }
-                }
-            });
-            totalTimer.setBase(SystemClock.elapsedRealtime());
-            totalTimer.start();
+        if(isActiveScreen){ //switch to Rest Screen
+            mContent = RestScreenFragment.newInstance(MAXIMUM_REST_TIME);
         }
+        else if(!isActiveScreen){ //switch to Active Screen
+            mContent = ActiveScreenFragment.newInstance(MAXIMUM_ACTIVE_ON_TIME, GOLD_PROBABILITY);
+
+            if(totalTimer == null){ //if this is the first time we are in the Active screen begin to track time
+                totalTimer = (Chronometer) findViewById(R.id.totalTimer);
+                totalTimer.setOnChronometerTickListener(new Chronometer.OnChronometerTickListener() {
+                    @Override
+                    public void onChronometerTick(Chronometer chronometer) {
+                        long startTime = chronometer.getBase();
+                        long currentTime = SystemClock.elapsedRealtime();
+                        long timePassed = currentTime - startTime;
+                        if (timePassed >= MAXIMUM_WORK_TIME) {
+                            goToQuestionnaire();
+                        } else if (!passedMandatoryTime && timePassed >= MANDATORY_WORK_TIME) {
+                            passedMandatoryTime = true;
+                            questionnaireBtn.setVisibility(View.VISIBLE);
+                        }
+                    }
+                });
+                resumeTimer();
+            }
+        }
+
+        transaction.replace(R.id.fragmentContainer, mContent).commit();
     }
 
-    public void goToQuestionnaire(){
-        //Detach and stop timers of current fragment
+    public void goToQuestionnaire() {
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.remove(mContent).commit();
         fragmentManager.executePendingTransactions();
@@ -166,14 +197,6 @@ public class MainActivity extends FragmentActivity
         Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
         startActivity(intent);
         finish();
-
-    }
-
-    @Override
-    public void goToRest(){
-        FragmentTransaction transaction = fragmentManager.beginTransaction();
-        mContent = RestScreenFragment.newInstance(MAXIMUM_REST_TIME);
-        transaction.replace(R.id.fragmentContainer, mContent).commit();
     }
 
     public void goldClicked(){

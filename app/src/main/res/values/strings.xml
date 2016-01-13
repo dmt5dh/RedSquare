@@ -19,6 +19,9 @@
     <string name="start_btn">Start task</string>
     <string name="goto_questionnaire_btn">Go to questionnaire</string>
     <string name="goto_rest_btn">Go to next screen</string>
+    <string name="questionnaire_confirm">Are you sure you want to stop working on the task?
+    You will not be able to return to the task.</string>
+    <string name="questionnaire_continue">Continue to questionnaire</string>
 
     <string name="parameters_text">Minimum time: %1$d, Maximum time: %2$d, red worth 1 pt, gold worth
     %3$.2f pt(s), gold appears at probability %4$.3f, maximum active time: %5$d, maximum rest time: %6$d</string>
