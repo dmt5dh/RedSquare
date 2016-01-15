@@ -78,6 +78,7 @@ public class ActiveScreenFragment extends TaskScreenFragment {
         gotoRestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                //TODO: go to restbtn event here
                 mTaskListener.switchTaskScreen(isActiveScreen());
             }
         });
@@ -96,6 +97,10 @@ public class ActiveScreenFragment extends TaskScreenFragment {
                     double ran = random.nextDouble();
                     if (ran < getArguments().getDouble(ARG_GOLD_PROBABILITY)) {
                         drawGoldSquare(screenWidth, screenHeight);
+                        mActiveListener.sendData(true);
+                    }
+                    else{
+                        mActiveListener.sendData(false);
                     }
                 }
             }
@@ -210,6 +215,7 @@ public class ActiveScreenFragment extends TaskScreenFragment {
         // TODO: Update argument type and name
         public void goldClicked();
         public void redClicked();
+        public void sendData(boolean goldPresent);
     }
 
 }
