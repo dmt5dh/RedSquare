@@ -14,7 +14,6 @@ public class RestScreenFragment extends TaskScreenFragment {
      * this fragment using the provided parameters.
      * @return A new instance of fragment RestScreenFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static RestScreenFragment newInstance(int maxRestTime) {
         RestScreenFragment fragment = new RestScreenFragment();
         Bundle args = new Bundle();

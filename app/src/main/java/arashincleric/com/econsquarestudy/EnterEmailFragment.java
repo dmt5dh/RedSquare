@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
+import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -96,13 +97,27 @@ public class EnterEmailFragment extends Fragment {
         submitBtn.setOnClickListener(new View.OnClickListener() { //Attach even to button
             @Override
             public void onClick(View v) {
-                boolean emailMatch = confirmEmail();
-                if(emailMatch){
+                int emailMatch = confirmEmail();
+                if(emailMatch == 0){
                     mListener.sendUsername(emailEntry.getText().toString());
                 }
                 else{
+                    String error;
+                    switch (emailMatch){
+                        case 1:
+                            error = getResources().getString(R.string.email_error_empty);
+                            break;
+                        case 2:
+                            error = getResources().getString(R.string.email_error_invalid);
+                            break;
+                        case 3:
+                            error = getResources().getString(R.string.email_error_match);
+                            break;
+                        default:
+                            error = "Error with email";
+                    }
                     new AlertDialog.Builder(v.getContext())
-                            .setMessage(R.string.email_error)
+                            .setMessage(error)
                             .setNeutralButton(R.string.cancel_btn, null)
                             .show();
                 }
@@ -112,13 +127,23 @@ public class EnterEmailFragment extends Fragment {
 
     /**
      * Check if the two emails match and that they are not empty
-     * @return True if emails matched and weren't blank
+     * @return 1:empty field(s), 2:not valid email, 3:emails don't match, 0:good
      */
-    public boolean confirmEmail(){
+    public int confirmEmail(){
         String email = emailEntry.getText().toString();
         String emailConfirm = emailEntryConfirm.getText().toString();
-
-        return !email.isEmpty() && !emailConfirm.isEmpty() && email.equals(emailConfirm);
+        if(email.isEmpty() || emailConfirm.isEmpty()){
+            return 1;
+        }
+        else if(!Patterns.EMAIL_ADDRESS.matcher(email).matches() || !Patterns.EMAIL_ADDRESS.matcher(emailConfirm).matches()){
+            return 2;
+        }
+        else if(!email.equals(emailConfirm)){
+            return 3;
+        }
+        else{
+            return 0;
+        }
     }
 
     @Override

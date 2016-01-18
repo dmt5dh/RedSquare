@@ -11,6 +11,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.view.WindowManager;
@@ -44,7 +45,12 @@ public class MainActivity extends FragmentActivity
     public final static String USER_DATA_COLUMNS =
             "UserID\tTimeStart\tTotalTime\tTimeStartSurvey\tNumberRedOffered\tNumberGoldOffered" +
                     "\tNumberRedClicked\tNumberGoldClicked\n";
-    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
+    public final static String EVENT_DATA_COLUMNS =
+            "Date\tTime\tUserID\tScreenType\tSequence\tGold" +
+                    "\tAction\n";
+    private final static SimpleDateFormat dateTimeFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS", Locale.US);
+    private final static SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    private final static SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss.SSS", Locale.US);
     public double points;
 
 
@@ -61,6 +67,7 @@ public class MainActivity extends FragmentActivity
     private ImageView pauseBtn;
 
     private boolean isPaused;
+    private boolean goldOnCurActive;
 
     private File filePath;
     private File eventLogFile;
@@ -73,6 +80,11 @@ public class MainActivity extends FragmentActivity
     private int totalGold;
     private int totalGoldClicked;
     private Calendar timeStarted;
+    private Calendar timeFinished;
+
+    private Calendar recordedPausedTime;
+    private int sequence;
+
 
 
 
@@ -90,6 +102,9 @@ public class MainActivity extends FragmentActivity
         totalRedClicked = 0;
         totalGold = 0;
         totalGoldClicked = 0;
+        sequence = 0;
+
+        goldOnCurActive = false;
 
         //Upper information bar
         taskInfo = (LinearLayout) findViewById(R.id.taskInfoContainer);
@@ -106,14 +121,16 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onClick(View v) {
                 if(isPaused){
-                    resumeTimer();
+                    resumeTimer(true);
                     ((TaskScreenFragment) mContent).startTimer();
                     pauseBtn.setImageResource(R.drawable.pause_btn);
                     isPaused = false;
                 }
                 else{
-                    //TODO: pause event here
                     pauseTimer();
+
+                    logPause(false);
+
                     ((TaskScreenFragment) mContent).pauseTimer();
                     pauseBtn.setImageResource(R.drawable.resume_btn);
                     isPaused = true;
@@ -127,23 +144,36 @@ public class MainActivity extends FragmentActivity
             @Override
             public void onClick(View v) {
                 final TaskScreenFragment taskScreenFragment = (TaskScreenFragment) mContent;
-                //TODO: tinker with this for better accuracy
-                //TODO: record goto surveyBtn event here
+                //TODO: tinker with this for better accuracy??
                 pauseTimer();
+                logPause(true);
+
                 taskScreenFragment.pauseTimer();
                 new AlertDialog.Builder(MainActivity.this)
                         .setMessage(R.string.questionnaire_confirm)
                         .setPositiveButton(R.string.questionnaire_continue, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                //TODO: go to questionnair event here
                                 goToQuestionnaire();
+
+                                String screenType = "Questionnaire";
+                                String goldInfo = "-";
+                                String action = "Clicked confirm go to survey";
+
+                                try{
+                                    logEvent(timeFinished, screenType, sequence, goldInfo, action);
+                                } catch(Exception e){
+                                    Toast.makeText(getBaseContext(),
+                                            "Could not save confirm questionnaire event. Exiting...",
+                                            Toast.LENGTH_LONG).show();
+                                }
+
                             }
                         })
                         .setNegativeButton(R.string.cancel_btn, new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                resumeTimer();
+                                resumeTimer(true);
                                 taskScreenFragment.startTimer();
                             }
                         })
@@ -160,18 +190,33 @@ public class MainActivity extends FragmentActivity
     }
 
     public void pauseTimer(){
+        recordedPausedTime = Calendar.getInstance();
         if(totalTimer != null){ //If we pause on the first rest screen when nothing is instantiated
             timerPausedTime = totalTimer.getBase() - SystemClock.elapsedRealtime();
             totalTimer.stop();
         }
     }
 
-    public void resumeTimer(){
+    public void resumeTimer(boolean validTime){
+        //Only record resumes after first active screen.
+        if(validTime){
+            //Save resume event.
+            // NOTE: do this before restarting the time because it will take some time to write to file.
+            String screenType = "Resume";
+            String goldInfo = "-";
+            String action = "Clicked resume";
+
+            try{
+                logEvent(Calendar.getInstance(), screenType, sequence, goldInfo, action);
+            } catch(Exception e){
+                Toast.makeText(this, "Could not save pause event. Exiting...", Toast.LENGTH_LONG).show();
+            }
+        }
+
         if(totalTimer != null){ //If we pause on the first rest screen when nothing is instantiated
             totalTimer.setBase(SystemClock.elapsedRealtime() + timerPausedTime);
             totalTimer.start();
         }
-        //TODO: resume event here
     }
 
     @Override
@@ -214,7 +259,6 @@ public class MainActivity extends FragmentActivity
         taskInfo.setVisibility(View.VISIBLE);
         pauseBtn.setVisibility(View.VISIBLE);
 
-        //TODO: log time user started here
         timeStarted = Calendar.getInstance();
     }
 
@@ -225,13 +269,14 @@ public class MainActivity extends FragmentActivity
 
     @Override
     public void switchTaskScreen(boolean isActiveScreen){
-        //TODO: Implement this
         FragmentTransaction transaction = fragmentManager.beginTransaction();
 
         if(isActiveScreen){ //switch to Rest Screen
             mContent = RestScreenFragment.newInstance(MAXIMUM_REST_TIME);
         }
         else if(!isActiveScreen){ //switch to Active Screen
+            sequence++;
+
             mContent = ActiveScreenFragment.newInstance(MAXIMUM_ACTIVE_ON_TIME, GOLD_PROBABILITY);
 
             if(totalTimer == null){ //if this is the first time we are in the Active screen begin to track time
@@ -250,7 +295,7 @@ public class MainActivity extends FragmentActivity
                         }
                     }
                 });
-                resumeTimer();
+                resumeTimer(false);
             }
         }
 
@@ -260,6 +305,7 @@ public class MainActivity extends FragmentActivity
     public void goToQuestionnaire() {
 
         saveUserData();
+
 
         FragmentTransaction transaction = fragmentManager.beginTransaction();
         transaction.remove(mContent).commit();
@@ -271,45 +317,92 @@ public class MainActivity extends FragmentActivity
     }
 
     public void saveUserData(){
-        //TODO: save user surveystart, totaltime
-        Calendar timeFinished = Calendar.getInstance();
+        timeFinished = Calendar.getInstance();
         long timeTaken = timeFinished.getTimeInMillis() - timeStarted.getTimeInMillis();
         long timeTakenSeconds = timeTaken / 1000 % 60;
         long timeTakenMinutes = timeTaken / (1000 * 60);
         long timeTakenHours = timeTaken/ (1000 * 60 * 60);
         String timeTakenFormatted = String.format("%02d:%02d:%02d", timeTakenHours, timeTakenMinutes, timeTakenSeconds);
 
-        String dataToSave = currentUser + "\t"
-                + dateFormat.format(timeStarted.getTime()) + "\t"
+        String dataToSaveUser = currentUser + "\t"
+                + dateTimeFormat.format(timeStarted.getTime()) + "\t"
                 + timeTakenFormatted + "\t"
-                + dateFormat.format(timeFinished.getTime()) + "\t"
+                + dateTimeFormat.format(timeFinished.getTime()) + "\t"
                 + totalRed + "\t"
                 + totalGold + "\t"
                 + totalRedClicked + "\t"
                 + totalGoldClicked + "\t" + "\n";
 
         try{
-            FileOutputStream userLogFileStream = new FileOutputStream(userLogFile, true);
-            userLogFileStream.write(dataToSave.getBytes());
-            userLogFileStream.close();
+            writeToFile(userLogFile, dataToSaveUser);
         } catch(Exception e){
             Toast.makeText(this, "Could not save user data. Exiting...", Toast.LENGTH_LONG).show();
         }
+
+
+
 
         //Maybe this will work on other devices to test
 //        MediaScannerConnection.scanFile(this, new String[]{userLogFile.getAbsolutePath()}, null, null);
 
     }
 
+    public void writeToFile(File f, String dataToSave) throws Exception{
+        FileOutputStream eventLogFileStream = new FileOutputStream(f, true);
+        eventLogFileStream.write(dataToSave.getBytes());
+        eventLogFileStream.close();
+    }
+
+    public void logPause(boolean isSurveySelected){
+        String screenType = "";
+        String action = "";
+        String goldInfo = "-";
+        if(isSurveySelected){
+            screenType = "Survey Confirmation";
+            action = "Clicked to survey";
+        }
+        else {
+            screenType = "Pause";
+            action = "Clicked pause";
+        }
+
+        try{
+            logEvent(recordedPausedTime, screenType, sequence, goldInfo, action);
+        } catch(Exception e){
+            Toast.makeText(this, "Could not save pause event. Exiting...", Toast.LENGTH_LONG).show();
+        }
+
+    }
+
     public void goldClicked(){
-        //TODO: record gold click event here
+        String screenType = "Active";
+        String goldInfo = goldOnCurActive ? "1" : "0";
+        String action = "Clicked gold square";
+
+        try{
+            logEvent(Calendar.getInstance(), screenType, sequence, goldInfo, action);
+        }
+        catch(Exception e){
+            Toast.makeText(this, "Could not save gold clicked event. Exiting...", Toast.LENGTH_LONG).show();
+        }
+
         points += GOLD_SCORE_WEIGHT;
         totalGoldClicked++;
         String pointsViewText = String.format(getResources().getString(R.string.points_text), points);
         pointsView.setText(pointsViewText);
     }
     public void redClicked(){
-        //TODO: record red click event here
+        String screenType = "Active";
+        String goldInfo = goldOnCurActive ? "1" : "0";
+        String action = "Clicked red square";
+
+        try{
+            logEvent(Calendar.getInstance(), screenType, sequence, goldInfo, action);
+        }
+        catch(Exception e){
+            Toast.makeText(this, "Could not save red clicked event. Exiting...", Toast.LENGTH_LONG).show();
+        }
+
         points ++;
         totalRedClicked++;
         String pointsViewText = String.format(getResources().getString(R.string.points_text), points);
@@ -320,6 +413,7 @@ public class MainActivity extends FragmentActivity
     public void sendData(boolean goldPresent){
         totalRed++;
         totalGold += goldPresent ? 1 : 0;
+        goldOnCurActive = goldPresent;
     }
 
     /* Checks if external storage is available for read and write */
@@ -338,9 +432,21 @@ public class MainActivity extends FragmentActivity
             Toast.makeText(this, "External Storage not writable. Exiting...", Toast.LENGTH_LONG).show();
             finish();
         }
+
+        int currentAPIVersion = Build.VERSION.SDK_INT;
+        File root;
+        if(currentAPIVersion >= Build.VERSION_CODES.KITKAT){ //Get API version because external storage is different depending
+            File[] dirs = ContextCompat.getExternalFilesDirs(this, null);
+            root = dirs[0];
+        }
+        else{
+            root = Environment.getExternalStorageDirectory();
+        }
         //Check if file directory exists. If not, create it and check if it was created.
-        filePath = new File(Environment.getExternalStorageDirectory() + "/LogData");
-        boolean makeDir = filePath.mkdir(); //Can't use this to check because it is false for error and dir exists
+        filePath = new File(root + "/LogData");
+        if(!filePath.exists()){
+            boolean makeDir = filePath.mkdirs(); //Can't use this to check because it is false for error and dir exists
+        }
         if(!filePath.exists() || !filePath.isDirectory()){
             Toast.makeText(this, "Error with creating directory. Exiting...", Toast.LENGTH_LONG).show();
             finish();
@@ -360,6 +466,7 @@ public class MainActivity extends FragmentActivity
         if(!eventLogFile.exists()){
             try{
                 FileOutputStream eventLogFileStream = new FileOutputStream(eventLogFile);
+                eventLogFileStream.write(EVENT_DATA_COLUMNS.getBytes());
                 eventLogFileStream.close();
             } catch (Exception e){
                 Toast.makeText(this, "Error creating event file. Exiting...", Toast.LENGTH_LONG).show();
@@ -379,5 +486,37 @@ public class MainActivity extends FragmentActivity
                 finish();
             }
         }
+    }
+
+    public void logEvent(Calendar now, String screenType, int sequence, String goldInfo, String action) throws Exception{
+
+        String dataToSave = dateFormat.format(now.getTime()) + "\t"
+                + timeFormat.format(now.getTime()) + "\t"
+                + currentUser + "\t"
+                + screenType + "\t"
+                + sequence + "\t"
+                + goldInfo + "\t"
+                + action + "\n";
+
+        writeToFile(eventLogFile, dataToSave);
+    }
+
+    @Override
+    public void logRestButton(){
+        String screenType = "Rest";
+        String goldInfo = "-";
+        String action = "Clicked go to rest screen";
+        try{
+            logEvent(Calendar.getInstance(), screenType, sequence, goldInfo, action);
+        }
+        catch (Exception e){
+            Toast.makeText(MainActivity.this, "\"Could not save goto rest screen clicked event. Exiting...\"",
+                    Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public boolean isScreenPaused(){
+        return isPaused;
     }
 }

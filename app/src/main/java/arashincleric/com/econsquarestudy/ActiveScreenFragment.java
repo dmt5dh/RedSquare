@@ -79,6 +79,7 @@ public class ActiveScreenFragment extends TaskScreenFragment {
             @Override
             public void onClick(View v) {
                 //TODO: go to restbtn event here
+                mActiveListener.logRestButton();
                 mTaskListener.switchTaskScreen(isActiveScreen());
             }
         });
@@ -98,8 +99,7 @@ public class ActiveScreenFragment extends TaskScreenFragment {
                     if (ran < getArguments().getDouble(ARG_GOLD_PROBABILITY)) {
                         drawGoldSquare(screenWidth, screenHeight);
                         mActiveListener.sendData(true);
-                    }
-                    else{
+                    } else {
                         mActiveListener.sendData(false);
                     }
                 }
@@ -113,8 +113,6 @@ public class ActiveScreenFragment extends TaskScreenFragment {
 
     }
 
-    //Because can't do it in the listener above
-    //TODO: delete this comment ^^
     //This can be one method but code more readable with two
     public void drawRedSquare(int screenWidth, int screenHeight){
         if (redSquare != null) {
@@ -145,9 +143,11 @@ public class ActiveScreenFragment extends TaskScreenFragment {
         redSquare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActiveListener.redClicked();
-                headLayout.removeView(redSquare);
-                gotoRestBtn.setVisibility(View.VISIBLE);
+                if(!mActiveListener.isScreenPaused()){
+                    mActiveListener.redClicked();
+                    headLayout.removeView(redSquare);
+                    gotoRestBtn.setVisibility(View.VISIBLE);
+                }
             }
         });
     }
@@ -177,8 +177,10 @@ public class ActiveScreenFragment extends TaskScreenFragment {
         goldSquare.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mActiveListener.goldClicked();
-                headLayout.removeView(goldSquare);
+                if(!mActiveListener.isScreenPaused()){
+                    mActiveListener.goldClicked();
+                    headLayout.removeView(goldSquare);
+                }
             }
         });
 
@@ -212,10 +214,11 @@ public class ActiveScreenFragment extends TaskScreenFragment {
      * >Communicating with Other Fragments</a> for more information.
      */
     public interface OnActiveScreenFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void goldClicked();
         public void redClicked();
         public void sendData(boolean goldPresent);
+        public void logRestButton();
+        public boolean isScreenPaused();
     }
 
 }
