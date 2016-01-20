@@ -35,10 +35,10 @@ public class MainActivity extends FragmentActivity
         TaskScreenFragment.OnTaskScreenFragmentInteractionListener{
 
     //IN MILLISECONDS
-    public static long MANDATORY_WORK_TIME = 10000;
-    public static long MAXIMUM_WORK_TIME = 85000;
+    public static long MANDATORY_WORK_TIME = 1000;
+    public static long MAXIMUM_WORK_TIME = 3000;
     public static int MAXIMUM_ACTIVE_ON_TIME = 8000;
-    public static int MAXIMUM_REST_TIME = 5000;
+    public static int MAXIMUM_REST_TIME = 3000;
     public static double GOLD_SCORE_WEIGHT = 1.25;
     public static double GOLD_PROBABILITY = 0.9;
 
@@ -54,6 +54,7 @@ public class MainActivity extends FragmentActivity
     public double points;
 
 
+    //TODO:Hide the timer
     private LinearLayout taskInfo;
     private TextView remainingTimerView;
     private TextView pointsView;

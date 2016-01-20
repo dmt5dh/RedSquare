@@ -35,7 +35,6 @@ public class ActiveScreenFragment extends TaskScreenFragment {
      *
      * @return A new instance of fragment ActiveScreenFragment.
      */
-    // TODO: Rename and change types and number of parameters
     public static ActiveScreenFragment newInstance(int maxActiveTime,
                                                    double goldPropability) {
         ActiveScreenFragment fragment = new ActiveScreenFragment();
@@ -78,7 +77,6 @@ public class ActiveScreenFragment extends TaskScreenFragment {
         gotoRestBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //TODO: go to restbtn event here
                 mActiveListener.logRestButton();
                 mTaskListener.switchTaskScreen(isActiveScreen());
             }
