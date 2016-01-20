@@ -8,10 +8,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+/**
+ * Superclass for task screens
+ */
 public abstract class TaskScreenFragment extends Fragment {
 
     public static String ARG_MAX_SCREEN_TIME = "ARG_MAX_SCREEN_TIME";
-    private CountDownTimer timer;
+    private CountDownTimer timer; //Timer for this screen
     private long millisTimeRemaining;
 
     protected OnTaskScreenFragmentInteractionListener mTaskListener;
@@ -28,6 +31,9 @@ public abstract class TaskScreenFragment extends Fragment {
         }
     }
 
+    /**
+     * Starts counting down on the screen
+     */
     public void startTimer(){
         timer = new CountDownTimer(millisTimeRemaining, 100) {
             public void onTick(long millisUntilFinished) {
@@ -42,12 +48,23 @@ public abstract class TaskScreenFragment extends Fragment {
         }.start();
     }
 
+    /**
+     * Determines what type of task screen this is
+     * @return true of active, false otherwise
+     */
     public abstract boolean isActiveScreen();
 
+    /**
+     * Pause timer
+     */
     public void pauseTimer(){
         timer.cancel();
     }
 
+    /**
+     * Format string to output on screen
+     * @param millisUntilFinished time until 0 in miliseconds
+     */
     public void performTick(long millisUntilFinished){
         String time = String.format(getResources().getString(R.string.remaining_time),
                 (millisUntilFinished / 1000) + 1);

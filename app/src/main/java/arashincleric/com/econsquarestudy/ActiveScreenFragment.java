@@ -53,7 +53,7 @@ public class ActiveScreenFragment extends TaskScreenFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        random = new Random();
+        random = new Random(); //Random object, this will be used a lot
 
         if (getArguments() != null) {
         }
@@ -86,18 +86,18 @@ public class ActiveScreenFragment extends TaskScreenFragment {
         ViewTreeObserver observer = headLayout.getViewTreeObserver();
         observer.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void onGlobalLayout() {
+            public void onGlobalLayout() { //Get parameters of the screen to generate the squares' locations
                 screenWidth = headLayout.getWidth(); //X coord
                 screenHeight = headLayout.getHeight(); //Y coord
 
                 headLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
                 drawRedSquare(screenWidth, screenHeight);
                 if (getArguments() != null) {
-                    double ran = random.nextDouble();
-                    if (ran < getArguments().getDouble(ARG_GOLD_PROBABILITY)) {
+                    double ran = random.nextDouble(); //Generate the squares
+                    if (ran < getArguments().getDouble(ARG_GOLD_PROBABILITY)) { //Generate gold square
                         drawGoldSquare(screenWidth, screenHeight);
                         mActiveListener.sendData(true);
-                    } else {
+                    } else { //Dont generate gold square
                         mActiveListener.sendData(false);
                     }
                 }
@@ -106,7 +106,7 @@ public class ActiveScreenFragment extends TaskScreenFragment {
 
         int maxScreenTime = getArguments().getInt(TaskScreenFragment.ARG_MAX_SCREEN_TIME);
 
-        performTick(maxScreenTime);
+        performTick(maxScreenTime); //To initialize display on screen
         startTimer();
 
     }

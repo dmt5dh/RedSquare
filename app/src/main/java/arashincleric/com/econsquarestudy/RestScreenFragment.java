@@ -6,7 +6,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-
+/**
+ * Fragment for a rest screen
+ */
 public class RestScreenFragment extends TaskScreenFragment {
 
     /**

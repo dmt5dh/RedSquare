@@ -5,7 +5,7 @@
     <string name="submit_btn">Submit</string>
     <string name="email_entry">E-mail_address: </string>
     <string name="email_entry_confirm">Confirm E-mail_address: </string>
-    <string name="email_entry_hint">johndoe@gmail.com</string>
+    <string name="email_entry_hint">jdoe@gmail.com</string>
     <string name="login_note">Please enter the e-mail address you used to register.
         Remember this is the e-mail address that will be used to pay you via pay-pal.</string>
     <string name="email_error_match">E-mails do not match</string>
@@ -23,6 +23,7 @@
     You will not be able to return to the task.</string>
     <string name="questionnaire_continue">Continue to questionnaire</string>
     <string name="seek_bar_text">%1$d / %2$d</string>
+    <string name="questionnaire_alert">Please fill out all fields</string>
 
     <string name="parameters_text">Minimum time: %1$d, Maximum time: %2$d, red worth 1 pt, gold worth
     %3$.2f pt(s), gold appears at probability %4$.3f, maximum active time: %5$d, maximum rest time: %6$d</string>

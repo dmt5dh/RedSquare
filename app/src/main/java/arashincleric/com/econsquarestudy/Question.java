@@ -1,6 +1,8 @@
 package arashincleric.com.econsquarestudy;
 
-
+/**
+ * Class that is a base question, other classes may extend to add more features
+ */
 public class Question {
 
     String question;

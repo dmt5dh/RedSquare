@@ -1,9 +1,11 @@
 package arashincleric.com.econsquarestudy;
 
-
+/**
+ * Question for scale bar
+ */
 public class QuestionScaleBar extends Question {
 
-    int maxScale;
+    int maxScale; //Highest number scale will go to
 
     public QuestionScaleBar(String question, int maxScale){
         super(question);

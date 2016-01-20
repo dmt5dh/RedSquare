@@ -1,5 +1,6 @@
 package arashincleric.com.econsquarestudy;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -13,6 +14,7 @@ import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
@@ -20,6 +22,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.ScrollView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -40,6 +43,7 @@ public class QuestionnaireActivity extends Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_questionnaire);
+
         LinearLayout layout = (LinearLayout)findViewById(R.id.layout);
 
         context = this;
@@ -51,22 +55,30 @@ public class QuestionnaireActivity extends Activity {
         questionList.add(new QuestionRadioButtons("test 2", 2, new String[]{"Male", "Female"}));
         questionList.add(new QuestionScaleBar("test 3", 10));
 
-        for(int i = 0; i < questionList.size(); i++){
+        questionList.add(new Question("test 4"));
+        questionList.add(new QuestionRadioButtons("test 5", 4, new String[]{"1", "2", "3", "4"}));
+        questionList.add(new QuestionScaleBar("test 6", 10));
+
+        questionList.add(new Question("test 7"));
+        questionList.add(new QuestionRadioButtons("test 8", 3, new String[]{"left", "right", "middle"}));
+        questionList.add(new QuestionScaleBar("test 9", 10));
+
+        for(int i = 0; i < questionList.size(); i++){ //Go through each question and generate the view
             Question q = questionList.get(i);
             View child;
-            if(q instanceof QuestionRadioButtons){
+            if(q instanceof QuestionRadioButtons){ //Radio buttons questions
                 child = getLayoutInflater().inflate(R.layout.question_radio, null);
                 TextView questionView = (TextView)child.findViewById(R.id.question);
                 questionView.setText(q.getQuestion());
                 RadioGroup radioGroup = (RadioGroup)child.findViewById(R.id.radioAnswers);
                 ArrayList<String> selections = ((QuestionRadioButtons)q).getSelections();
-                for(int j = 0; j < ((QuestionRadioButtons)q).getNumSelections(); j++){
+                for(int j = 0; j < ((QuestionRadioButtons)q).getNumSelections(); j++){ //Set all radio buttons
                     RadioButton radioButton = new RadioButton(this);
                     radioButton.setText(selections.get(j));
                     radioGroup.addView(radioButton);
                 }
             }
-            else if(q instanceof QuestionScaleBar){
+            else if(q instanceof QuestionScaleBar){ //Scale questions
                 child = getLayoutInflater().inflate(R.layout.question_scale, null);
                 TextView questionView = (TextView)child.findViewById(R.id.question);
                 questionView.setText(q.getQuestion());
@@ -82,6 +94,7 @@ public class QuestionnaireActivity extends Activity {
                 seekBarProgress.setText(text);
 
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                    //Track seek bar change here and display to user
                     @Override
                     public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
                         View v = (View) seekBar.getParent().getParent();
@@ -104,31 +117,45 @@ public class QuestionnaireActivity extends Activity {
                 TextView questionView = (TextView)child.findViewById(R.id.question);
                 questionView.setText(q.getQuestion());
             }
-            child.setTag(q);
-            child.setPadding(0,0,0,10);
+            child.setTag(q); //Save the object to this view to retrieve data later
+            child.setPadding(0,0,0,20);
             layout.addView(child);
         }
 
-        Button submitButton = new Button(this);
+        Button submitButton = new Button(this); //Add submit button at the end
         submitButton.setText(R.string.submit_btn);
+        submitButton.setPadding(0, 20, 0, 20);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                createQuestionnaireFile();
+                boolean success = createQuestionnaireFile();
 
-                Intent intent = new Intent(QuestionnaireActivity.this, MainActivity.class);
-                startActivity(intent);
-                finish();
+                if (success) {
+                    Intent intent = new Intent(QuestionnaireActivity.this, MainActivity.class);
+                    startActivity(intent);
+                    finish();
+                }
             }
         });
         layout.addView(submitButton);
 
         setupUI(findViewById(R.id.scrollView));
 
-        layout.requestFocus();
+        ScrollView scrollView = (ScrollView)findViewById(R.id.scrollView);
+        scrollView.requestFocus(); //Start at the top of the scrollView
     }
 
-    private void createQuestionnaireFile(){
+    @Override
+    public void onResume(){
+        super.onResume();
+        turnFullScreen();
+    }
+
+    /**
+     * Save the questionnaire answers to file
+     * @return true if successful
+     */
+    private boolean createQuestionnaireFile(){
         //Check external storage available
         if(!isExternalStorageWritable()){
             Toast.makeText(this, "External Storage not writable. Exiting...", Toast.LENGTH_LONG).show();
@@ -153,13 +180,16 @@ public class QuestionnaireActivity extends Activity {
             Toast.makeText(this, "Error with creating directory. Exiting...", Toast.LENGTH_LONG).show();
             finish();
         }
+
         String answersFileName = "Answers.txt";
         File answersFile = new File(filePath, answersFileName);
-        if(!answersFile.exists()){
+        if(!answersFile.exists()){ //Make the file if it doesnt exist
             try{
                 FileOutputStream answerFileStream = new FileOutputStream(answersFile);
                 String columns = "";
-                for(int i = 0; i < questionList.size(); i++){
+                String userName = "Username" + "\t";
+                answerFileStream.write(userName.getBytes());
+                for(int i = 0; i < questionList.size(); i++){ //Go through each view and retrieve question
                     columns = columns + questionList.get(i).getQuestion() + "\t";
                 }
                 columns = columns + "\n";
@@ -172,20 +202,30 @@ public class QuestionnaireActivity extends Activity {
         }
 
         LinearLayout layout = (LinearLayout)findViewById(R.id.layout);
-        String data = "";
-        for(int i = 0; i < layout.getChildCount() - 1; i++){
+        Intent intent = getIntent();
+        String userName = intent.getStringExtra("USERNAME") + "\t"; //Save username
+        String data = userName;
+        for(int i = 0; i < layout.getChildCount() - 1; i++){ //Go to 2nd to last because last child is the button
             RadioGroup radioGroup = (RadioGroup)layout.getChildAt(i).findViewById(R.id.radioAnswers);
             SeekBar seekBar = (SeekBar)layout.getChildAt(i).findViewById(R.id.seekBar);
             if(radioGroup != null){
                 int radioId = radioGroup.getCheckedRadioButtonId();
                 RadioButton radioButton = (RadioButton)radioGroup.findViewById(radioId);
+                if(radioButton == null){ //Force user to choose something
+                    alertFillFields();
+                    return false;
+                }
                 data = data + radioButton.getText() + "\t";
             }
             else if(seekBar != null){
                 data = data + Integer.toString(seekBar.getProgress()) + "\t";
             }
             else{
-                EditText editText = (EditText)layout.findViewById(R.id.answer);
+                EditText editText = (EditText)layout.getChildAt(i).findViewById(R.id.answer);
+                if(editText.getText().toString().isEmpty()){ //For user to type something
+                    alertFillFields();
+                    return false;
+                }
                 data = data + editText.getText().toString() + "\t";
             }
         }
@@ -200,9 +240,11 @@ public class QuestionnaireActivity extends Activity {
             Toast.makeText(this, "Error saving answers. Exiting...", Toast.LENGTH_LONG).show();
             finish();
         }
+
+        return true;
     }
 
-    /* Checks if external storage is available for read and write */
+    /**Checks if external storage is available for read and write **/
     public boolean isExternalStorageWritable() {
         String state = Environment.getExternalStorageState();
         if (Environment.MEDIA_MOUNTED.equals(state)) {
@@ -211,11 +253,18 @@ public class QuestionnaireActivity extends Activity {
         return false;
     }
 
+    /**
+     * Hide soft keyboard
+     */
     public void hideSoftKeyboard() {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
         inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
     }
 
+    /**
+     * Put a listener on every view to hide softkeyboard if edittext not chosen
+     * @param view
+     */
     public void setupUI(View view) {
 
         //Set up touch listener for non-text box views to hide keyboard.
@@ -225,6 +274,7 @@ public class QuestionnaireActivity extends Activity {
 
                 public boolean onTouch(View v, MotionEvent event) {
                     hideSoftKeyboard();
+                    turnFullScreen();
                     return false;
                 }
 
@@ -241,6 +291,39 @@ public class QuestionnaireActivity extends Activity {
                 setupUI(innerView);
             }
         }
+    }
+
+    /**
+     * Hide nav/status bars
+     */
+    public void turnFullScreen(){
+        // If the Android version is lower than Jellybean, use this call to hide
+        // the status bar.
+        if (Build.VERSION.SDK_INT < 16) {
+            getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                    WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        }
+        else{
+            View decorView = getWindow().getDecorView();
+            // Hide the status bar.
+            int uiOptions = View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    | View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    | View.SYSTEM_UI_FLAG_FULLSCREEN
+                    | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
+            decorView.setSystemUiVisibility(uiOptions);
+        }
+    }
+
+    /**
+     * Generate alert to tell the user to fill out all fields
+     */
+    public void alertFillFields(){
+        new AlertDialog.Builder(this)
+                .setMessage(R.string.questionnaire_alert)
+                .setNegativeButton(R.string.cancel_btn, null)
+                .show();
     }
 
 }
