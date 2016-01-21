@@ -1,21 +1,17 @@
 package arashincleric.com.econsquarestudy;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.app.Activity;
 import android.os.Environment;
 import android.support.v4.content.ContextCompat;
-import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
@@ -27,12 +23,10 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.Objects;
 
 public class QuestionnaireActivity extends Activity {
 
@@ -50,18 +44,12 @@ public class QuestionnaireActivity extends Activity {
 
         questionList = new ArrayList<Question>();
 
-        //TODO: add questions here
-        questionList.add(new Question("test 1"));
-        questionList.add(new QuestionRadioButtons("test 2", 2, new String[]{"Male", "Female"}));
-        questionList.add(new QuestionScaleBar("test 3", 10));
+        /** ADD QUESTIONS HERE */
+        questionList.add(new Question("Describe the difficulty of this test. "));
+        questionList.add(new QuestionScaleBar("On a scale of 0 - 10, how much did you like this?", 10));
+        questionList.add(new QuestionRadioButtons("What is your year?", 4, new String[]{"1", "2", "3", "4"}));
 
-        questionList.add(new Question("test 4"));
-        questionList.add(new QuestionRadioButtons("test 5", 4, new String[]{"1", "2", "3", "4"}));
-        questionList.add(new QuestionScaleBar("test 6", 10));
-
-        questionList.add(new Question("test 7"));
-        questionList.add(new QuestionRadioButtons("test 8", 3, new String[]{"left", "right", "middle"}));
-        questionList.add(new QuestionScaleBar("test 9", 10));
+        /** ADD QUESTIONS ABOVE */
 
         for(int i = 0; i < questionList.size(); i++){ //Go through each question and generate the view
             Question q = questionList.get(i);
@@ -116,15 +104,17 @@ public class QuestionnaireActivity extends Activity {
                 child = getLayoutInflater().inflate(R.layout.question_free_response, null);
                 TextView questionView = (TextView)child.findViewById(R.id.question);
                 questionView.setText(q.getQuestion());
+
+                EditText answerText = (EditText)child.findViewById(R.id.answer);
+                answerText.setHint(R.string.answer_hint);
             }
             child.setTag(q); //Save the object to this view to retrieve data later
-            child.setPadding(0,0,0,20);
+            child.setPadding(0,0,0,50);
             layout.addView(child);
         }
 
         Button submitButton = new Button(this); //Add submit button at the end
         submitButton.setText(R.string.submit_btn);
-        submitButton.setPadding(0, 20, 0, 20);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -258,12 +248,14 @@ public class QuestionnaireActivity extends Activity {
      */
     public void hideSoftKeyboard() {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+        if(this.getCurrentFocus().getWindowToken() != null){
+            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+        }
     }
 
     /**
      * Put a listener on every view to hide softkeyboard if edittext not chosen
-     * @param view
+     * @param view The view set up
      */
     public void setupUI(View view) {
 

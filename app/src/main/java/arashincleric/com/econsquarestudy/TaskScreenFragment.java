@@ -4,16 +4,13 @@ import android.content.Context;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.support.v4.app.Fragment;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
 
 /**
  * Superclass for task screens
  */
 public abstract class TaskScreenFragment extends Fragment {
 
-    public static String ARG_MAX_SCREEN_TIME = "ARG_MAX_SCREEN_TIME";
+    public final static String ARG_MAX_SCREEN_TIME = "ARG_MAX_SCREEN_TIME";
     private CountDownTimer timer; //Timer for this screen
     private long millisTimeRemaining;
 

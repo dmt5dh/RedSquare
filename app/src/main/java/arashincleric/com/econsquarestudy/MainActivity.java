@@ -40,13 +40,13 @@ public class MainActivity extends FragmentActivity
         TaskScreenFragment.OnTaskScreenFragmentInteractionListener{
 
     //IN MILLISECONDS
-    public static long MANDATORY_WORK_TIME = 1000;
-    public static long MAXIMUM_WORK_TIME = 10000;
-    public static int MAXIMUM_ACTIVE_ON_TIME = 3000;
-    public static int MAXIMUM_REST_TIME = 3000;
-    public static double GOLD_SCORE_WEIGHT = 1.25;
-    public static double GOLD_PROBABILITY = 0.9;
-    public static boolean HIDE_REST_TIMER = true;
+    public final static long MANDATORY_WORK_TIME = 10000;
+    public final static long MAXIMUM_WORK_TIME = 60000;
+    public final static int MAXIMUM_ACTIVE_ON_TIME = 8000;
+    public final static int MAXIMUM_REST_TIME = 3000;
+    public final static double GOLD_SCORE_WEIGHT = 1.25;
+    public final static double GOLD_PROBABILITY = 0.9;
+    public final static boolean HIDE_REST_TIMER = false;
 
 
 
@@ -65,7 +65,7 @@ public class MainActivity extends FragmentActivity
     private LinearLayout taskInfo;
     private TextView remainingTimerView;
     private TextView pointsView;
-    private FragmentManager fragmentManager = getSupportFragmentManager();
+    private final FragmentManager fragmentManager = getSupportFragmentManager();
     private Fragment mContent;
     private String currentUser = null;
     private Chronometer totalTimer;
@@ -298,7 +298,7 @@ public class MainActivity extends FragmentActivity
 
     /**
      * From task fragment. Changes text of timer
-     * @param time
+     * @param time The time, sent as a String, to show on the screen
      */
     @Override
     public void countDown(String time){
@@ -616,7 +616,7 @@ public class MainActivity extends FragmentActivity
 
     /**
      * Put a listener on every view to hide softkeyboard if edittext not chosen
-     * @param view
+     * @param view The view to set up
      */
     public void setupUI(View view) {
 
@@ -651,6 +651,8 @@ public class MainActivity extends FragmentActivity
      */
     public void hideSoftKeyboard() {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);
-        inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+        if(this.getCurrentFocus().getWindowToken() != null){
+            inputMethodManager.hideSoftInputFromWindow(this.getCurrentFocus().getWindowToken(), 0);
+        }
     }
 }

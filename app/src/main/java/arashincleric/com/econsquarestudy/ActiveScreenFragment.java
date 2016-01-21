@@ -15,7 +15,7 @@ import java.util.Random;
 
 public class ActiveScreenFragment extends TaskScreenFragment {
 
-    private static String ARG_GOLD_PROBABILITY = "ARG_GOLD_PROBABILITY";
+    private final static String ARG_GOLD_PROBABILITY = "ARG_GOLD_PROBABILITY";
 
     private ImageView redSquare;
     private ImageView goldSquare;
@@ -55,8 +55,6 @@ public class ActiveScreenFragment extends TaskScreenFragment {
 
         random = new Random(); //Random object, this will be used a lot
 
-        if (getArguments() != null) {
-        }
     }
 
     @Override
@@ -69,8 +67,6 @@ public class ActiveScreenFragment extends TaskScreenFragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if (getArguments() != null) {
-        }
 
         gotoRestBtn = (Button)view.findViewById(R.id.gotoRestBtn);
         gotoRestBtn.setVisibility(View.GONE);

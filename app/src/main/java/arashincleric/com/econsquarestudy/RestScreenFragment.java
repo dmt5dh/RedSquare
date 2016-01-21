@@ -1,6 +1,5 @@
 package arashincleric.com.econsquarestudy;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -32,8 +31,6 @@ public class RestScreenFragment extends TaskScreenFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
-        if (getArguments() != null) {
-        }
     }
 
     @Override

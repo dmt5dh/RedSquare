@@ -24,6 +24,7 @@
     <string name="questionnaire_continue">Continue to questionnaire</string>
     <string name="seek_bar_text">%1$d / %2$d</string>
     <string name="questionnaire_alert">Please fill out all fields</string>
+    <string name="answer_hint">Type answer here</string>
 
     <string name="parameters_text">Minimum time: %1$d, Maximum time: %2$d, red worth 1 pt, gold worth
     %3$.2f pt(s), gold appears at probability %4$.3f, maximum active time: %5$d, maximum rest time: %6$d</string>
