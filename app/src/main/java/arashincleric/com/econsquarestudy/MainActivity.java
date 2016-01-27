@@ -39,7 +39,8 @@ public class MainActivity extends FragmentActivity
         ActiveScreenFragment.OnActiveScreenFragmentInteractionListener,
         TaskScreenFragment.OnTaskScreenFragmentInteractionListener{
 
-    //IN MILLISECONDS
+    //CHANGE THESE VARIABLES
+    //TIME IN MILLISECONDS
     public final static long MANDATORY_WORK_TIME = 10000;
     public final static long MAXIMUM_WORK_TIME = 60000;
     public final static int MAXIMUM_ACTIVE_ON_TIME = 8000;
@@ -47,7 +48,7 @@ public class MainActivity extends FragmentActivity
     public final static double GOLD_SCORE_WEIGHT = 1.25;
     public final static double GOLD_PROBABILITY = 0.9;
     public final static boolean HIDE_REST_TIMER = false;
-
+    //CHANGE ABOVE VARIABLES
 
 
     public final static String USER_DATA_COLUMNS =

@@ -45,9 +45,9 @@ public class QuestionnaireActivity extends Activity {
         questionList = new ArrayList<Question>();
 
         /** ADD QUESTIONS HERE */
-        questionList.add(new Question("Describe the difficulty of this test. "));
-        questionList.add(new QuestionScaleBar("On a scale of 0 - 10, how much did you like this?", 10));
-        questionList.add(new QuestionRadioButtons("What is your year?", 4, new String[]{"1", "2", "3", "4"}));
+        questionList.add(new Question("Describe the difficulty of this test. ")); //Free response
+        questionList.add(new QuestionScaleBar("On a scale of 0 - 10, how much did you like this?", 10)); //Scale
+        questionList.add(new QuestionRadioButtons("What is your year?", 4, new String[]{"1", "2", "3", "4"})); // Radio buttons
 
         /** ADD QUESTIONS ABOVE */
 

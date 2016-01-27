@@ -2,6 +2,7 @@ package arashincleric.com.econsquarestudy;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -156,12 +157,13 @@ public class ActiveScreenFragment extends TaskScreenFragment {
         int goldX = random.nextInt(screenWidth);
         int goldY = random.nextInt(screenHeight);
 
-        while (Math.abs(redSquare.getX() - goldX) < 200 //Enough buffer so we dont accidently click one or the other
-                || Math.abs(redSquare.getY() - goldY) < 200
+        while (Math.abs(redSquare.getX() - goldX) < 125 //Enough buffer so we dont accidently click one or the other
+                || Math.abs(redSquare.getY() - goldY) < 125
                 || goldX > (screenWidth - 150) || goldX < 55
                 || goldY > (screenHeight - 150) || goldY < 55) {
             goldX = random.nextInt(screenWidth);
             goldY = random.nextInt(screenHeight);
+            Log.e("GOLD", "LOOP");
         }
 
         goldSquare.setX(goldX);
