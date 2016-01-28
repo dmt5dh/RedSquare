@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
@@ -45,9 +46,23 @@ public class QuestionnaireActivity extends Activity {
         questionList = new ArrayList<Question>();
 
         /** ADD QUESTIONS HERE */
-        questionList.add(new Question("Describe the difficulty of this test. ")); //Free response
-        questionList.add(new QuestionScaleBar("On a scale of 0 - 10, how much did you like this?", 10)); //Scale
-        questionList.add(new QuestionRadioButtons("What is your year?", 4, new String[]{"1", "2", "3", "4"})); // Radio buttons
+        questionList.add(new QuestionScaleBar("How much did you enjoy game?", 5, "Not at all", "Very much")); //Scale
+        questionList.add(new QuestionScaleBar("How exciting did you find the game?", 5, "Not at all", "Very")); //Scale
+        questionList.add(new QuestionScaleBar("Did you have enough time for the active screen?", 5, "Too little", "Too much")); //Scale
+        questionList.add(new QuestionScaleBar("Did you have enough time for the rest screen?", 5, "Too little", "Too much"));
+        questionList.add(new QuestionScaleBar("How tiring did you find the game?", 5, "Too little", "Too much"));
+
+        questionList.add(new Question("Do you have any suggestions for improvements in the game design?")); //Free response
+        questionList.add(new Question("Why did you decided to leave when you did?")); //Free response
+
+        questionList.add(new QuestionRadioButtons("Would you be willing to come back for another trial under the same conditions?", 2, new String[]{"Yes", "No"}, false)); // Radio buttons
+        questionList.add(new QuestionRadioButtons("How was the work environment? Mark all that apply.", 8, new String[]{"Friendly", "Quiet", "Meditative", "Exciting", "Boring", "Stressful", "Painful", "Relaxing"}, true));
+
+        questionList.add(new Question("Do you have any suggestions for improvement in terms of the work environment")); //Free response
+        questionList.add(new Question("Did you experience any technical problems (tablet/stands/program)")); //Free response
+        questionList.add(new Question("Do you have any suggestions for improvement in terms of technical problems")); //Free response
+        questionList.add(new Question("Are you happy with the payment scheme ")); //Free response
+
 
         /** ADD QUESTIONS ABOVE */
 
@@ -55,16 +70,27 @@ public class QuestionnaireActivity extends Activity {
             Question q = questionList.get(i);
             View child;
             if(q instanceof QuestionRadioButtons){ //Radio buttons questions
-                child = getLayoutInflater().inflate(R.layout.question_radio, null);
+                ArrayList<String> selections = ((QuestionRadioButtons)q).getSelections();
+                if(((QuestionRadioButtons)q).isCheckBox()){
+                    child = getLayoutInflater().inflate(R.layout.question_checkbox, null);
+                    LinearLayout linearLayout = (LinearLayout)child.findViewById(R.id.checkBoxAnswers);
+                    for(int j = 0; j < ((QuestionRadioButtons)q).getNumSelections(); j++){
+                        CheckBox checkBox = new CheckBox(this);
+                        checkBox.setText(selections.get(j));
+                        linearLayout.addView(checkBox);
+                    }
+                }
+                else{
+                    child = getLayoutInflater().inflate(R.layout.question_radio, null);
+                    RadioGroup radioGroup = (RadioGroup)child.findViewById(R.id.radioAnswers);
+                    for(int j = 0; j < ((QuestionRadioButtons)q).getNumSelections(); j++){ //Set all radio buttons
+                        RadioButton radioButton = new RadioButton(this);
+                        radioButton.setText(selections.get(j));
+                        radioGroup.addView(radioButton);
+                    }
+                }
                 TextView questionView = (TextView)child.findViewById(R.id.question);
                 questionView.setText(q.getQuestion());
-                RadioGroup radioGroup = (RadioGroup)child.findViewById(R.id.radioAnswers);
-                ArrayList<String> selections = ((QuestionRadioButtons)q).getSelections();
-                for(int j = 0; j < ((QuestionRadioButtons)q).getNumSelections(); j++){ //Set all radio buttons
-                    RadioButton radioButton = new RadioButton(this);
-                    radioButton.setText(selections.get(j));
-                    radioGroup.addView(radioButton);
-                }
             }
             else if(q instanceof QuestionScaleBar){ //Scale questions
                 child = getLayoutInflater().inflate(R.layout.question_scale, null);
@@ -80,6 +106,11 @@ public class QuestionnaireActivity extends Activity {
                         0, ((QuestionScaleBar)q).getMaxScale());
                 TextView seekBarProgress = (TextView)child.findViewById(R.id.seekBarStatus);
                 seekBarProgress.setText(text);
+
+                TextView minText = (TextView)child.findViewById(R.id.minLimitText);
+                minText.setText(((QuestionScaleBar)q).getMinText());
+                TextView maxText = (TextView)child.findViewById(R.id.maxLimitText);
+                maxText.setText(((QuestionScaleBar)q).getMaxText());
 
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     //Track seek bar change here and display to user
@@ -131,6 +162,11 @@ public class QuestionnaireActivity extends Activity {
             }
         });
         layout.addView(submitButton);
+
+        View viewHolder = new View(this); //To give some space on the bottom
+        ViewGroup.LayoutParams params = new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 25);
+        viewHolder.setLayoutParams(params);
+        layout.addView(viewHolder);
 
         setupUI(findViewById(R.id.scrollView));
 
@@ -201,6 +237,7 @@ public class QuestionnaireActivity extends Activity {
         for(int i = 0; i < layout.getChildCount() - 1; i++){ //Go to 2nd to last because last child is the button
             RadioGroup radioGroup = (RadioGroup)layout.getChildAt(i).findViewById(R.id.radioAnswers);
             SeekBar seekBar = (SeekBar)layout.getChildAt(i).findViewById(R.id.seekBar);
+            LinearLayout checkGroup = (LinearLayout)layout.getChildAt(i).findViewById(R.id.checkBoxAnswers);
             if(radioGroup != null){
                 int radioId = radioGroup.getCheckedRadioButtonId();
                 RadioButton radioButton = (RadioButton)radioGroup.findViewById(radioId);
@@ -209,6 +246,16 @@ public class QuestionnaireActivity extends Activity {
                     return false;
                 }
                 data = data + radioButton.getText() + "\t";
+            }
+            else if(checkGroup != null){
+                String selections = "";
+                for(int j = 0; j < checkGroup.getChildCount(); j++){
+                    CheckBox checkBox = (CheckBox)checkGroup.getChildAt(j);
+                    if(checkBox.isChecked()){
+                        selections = selections + checkBox.getText().toString() + ",";
+                    }
+                }
+                data = data + selections + "\t";
             }
             else if(seekBar != null){
                 data = data + Integer.toString(seekBar.getProgress()) + "\t";

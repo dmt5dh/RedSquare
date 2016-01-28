@@ -10,10 +10,13 @@ public class QuestionRadioButtons extends Question {
 
     int numSelections; //Number of buttons
     ArrayList<String> selections; //Text for buttons
-    public QuestionRadioButtons(String question, int numSelections, String[] selections){
+    boolean isCheckBox;
+
+    public QuestionRadioButtons(String question, int numSelections, String[] selections, boolean isCheckBox){
         super(question);
         this.numSelections = numSelections;
         this.selections = new ArrayList<String>(Arrays.asList(selections));
+        this.isCheckBox = isCheckBox;
     }
 
     public int getNumSelections(){
@@ -30,6 +33,10 @@ public class QuestionRadioButtons extends Question {
 
     public void setSelections(ArrayList<String> selections){
         this.selections = selections;
+    }
+
+    public boolean isCheckBox(){
+        return isCheckBox;
     }
 
 
