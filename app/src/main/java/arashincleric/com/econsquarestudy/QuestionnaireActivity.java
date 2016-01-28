@@ -77,6 +77,7 @@ public class QuestionnaireActivity extends Activity {
                     for(int j = 0; j < ((QuestionRadioButtons)q).getNumSelections(); j++){
                         CheckBox checkBox = new CheckBox(this);
                         checkBox.setText(selections.get(j));
+                        checkBox.setTextSize(20);
                         linearLayout.addView(checkBox);
                     }
                 }
@@ -86,6 +87,7 @@ public class QuestionnaireActivity extends Activity {
                     for(int j = 0; j < ((QuestionRadioButtons)q).getNumSelections(); j++){ //Set all radio buttons
                         RadioButton radioButton = new RadioButton(this);
                         radioButton.setText(selections.get(j));
+                        radioButton.setTextSize(20);
                         radioGroup.addView(radioButton);
                     }
                 }
@@ -234,7 +236,7 @@ public class QuestionnaireActivity extends Activity {
         Intent intent = getIntent();
         String userName = intent.getStringExtra("USERNAME") + "\t"; //Save username
         String data = userName;
-        for(int i = 0; i < layout.getChildCount() - 1; i++){ //Go to 2nd to last because last child is the button
+        for(int i = 0; i < layout.getChildCount() - 2; i++){ //Go to 2nd to last because last child is the button
             RadioGroup radioGroup = (RadioGroup)layout.getChildAt(i).findViewById(R.id.radioAnswers);
             SeekBar seekBar = (SeekBar)layout.getChildAt(i).findViewById(R.id.seekBar);
             LinearLayout checkGroup = (LinearLayout)layout.getChildAt(i).findViewById(R.id.checkBoxAnswers);

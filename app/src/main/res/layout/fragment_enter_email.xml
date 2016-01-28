@@ -18,7 +18,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/login"
-        android:textSize="35sp"
+        android:textSize="45sp"
         android:id="@+id/loginText"
         android:textColor="@android:color/black"
         android:layout_alignParentTop="true"
@@ -40,7 +40,7 @@
             android:text="@string/email_entry"
             android:id="@+id/emailEntryText"
             android:textColor="@android:color/black"
-            android:textSize="15sp">
+            android:textSize="25sp">
         </TextView>
 
         <EditText
@@ -48,6 +48,7 @@
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
             android:ems="10"
+            android:textSize="25sp"
             android:id="@+id/emailEntryInput"
             android:hint="@string/email_entry_hint"/>
 
@@ -67,7 +68,7 @@
             android:text="@string/email_entry_confirm"
             android:id="@+id/emailEntryConfirmText"
             android:textColor="@android:color/black"
-            android:textSize="15sp">
+            android:textSize="25sp">
         </TextView>
 
         <EditText
@@ -75,6 +76,7 @@
             android:layout_height="wrap_content"
             android:inputType="textEmailAddress"
             android:ems="10"
+            android:textSize="25sp"
             android:id="@+id/emailEntryInputConfirm"
             android:hint="@string/email_entry_hint"/>
 
@@ -85,6 +87,7 @@
         android:layout_height="wrap_content"
         android:text="@string/login_note"
         android:id="@+id/noteTextView"
+        android:textSize="20sp"
         android:layout_below="@+id/loginText"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
