@@ -148,6 +148,7 @@ public class ActiveScreenFragment extends TaskScreenFragment {
     }
 
     public void drawGoldSquare(int screenWidth, int screenHeight){
+        Log.e("GOLD", "GOLDCREATING");
         if(goldSquare != null){
             headLayout.removeView(goldSquare);
         }

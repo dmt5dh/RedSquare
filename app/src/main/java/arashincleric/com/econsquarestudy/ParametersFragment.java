@@ -41,13 +41,16 @@ public class ParametersFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         TextView paramsView = (TextView) view.findViewById(R.id.parametersView);
+        double mandatoryTime = ((double)MainActivity.MANDATORY_WORK_TIME) / 1000;
+        double maxTime = ((double)MainActivity.MAXIMUM_WORK_TIME) / 1000;
         String params = String.format(getResources().getString(R.string.parameters_text),
-                MainActivity.MANDATORY_WORK_TIME,
-                MainActivity.MAXIMUM_WORK_TIME,
+                mandatoryTime,
+                maxTime,
+                MainActivity.RED_SCORE_WEIGHT,
                 MainActivity.GOLD_SCORE_WEIGHT,
                 MainActivity.GOLD_PROBABILITY,
-                MainActivity.MAXIMUM_ACTIVE_ON_TIME,
-                MainActivity.MAXIMUM_REST_TIME);
+                MainActivity.MAXIMUM_ACTIVE_ON_TIME / 1000,
+                MainActivity.MAXIMUM_REST_TIME / 1000);
         paramsView.setText(params);
 
         Button startBtn = (Button) view.findViewById(R.id.startBtn);

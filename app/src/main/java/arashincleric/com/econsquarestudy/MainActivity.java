@@ -42,10 +42,11 @@ public class MainActivity extends FragmentActivity
     //CHANGE THESE VARIABLES
     //TIME IN MILLISECONDS
     public final static long MANDATORY_WORK_TIME = 10000;
-    public final static long MAXIMUM_WORK_TIME = 60000;
+    public final static long MAXIMUM_WORK_TIME = 300000;
     public final static int MAXIMUM_ACTIVE_ON_TIME = 8000;
     public final static int MAXIMUM_REST_TIME = 3000;
     public final static double GOLD_SCORE_WEIGHT = 1.25;
+    public final static double RED_SCORE_WEIGHT = 1.00;
     public final static double GOLD_PROBABILITY = 0.9;
     public final static boolean HIDE_REST_TIMER = false;
     //CHANGE ABOVE VARIABLES
@@ -362,6 +363,7 @@ public class MainActivity extends FragmentActivity
 
         Intent intent = new Intent(MainActivity.this, QuestionnaireActivity.class);
         intent.putExtra("USERNAME", currentUser);
+        intent.putExtra("POINTS", points);
         startActivity(intent);
         finish();
     }
@@ -474,7 +476,7 @@ public class MainActivity extends FragmentActivity
             Toast.makeText(this, "Could not save red clicked event. Exiting...", Toast.LENGTH_LONG).show();
         }
 
-        points ++;
+        points += RED_SCORE_WEIGHT;
         totalRedClicked++;
         String pointsViewText = String.format(getResources().getString(R.string.points_text), points);
         pointsView.setText(pointsViewText);

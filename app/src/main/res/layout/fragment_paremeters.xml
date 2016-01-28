@@ -1,4 +1,4 @@
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="arashincleric.com.econsquarestudy.ParametersFragment">
@@ -7,14 +7,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/parametersView"
-        android:layout_gravity="start|top"
         android:textColor="@android:color/black"
-        />
+        android:layout_below="@+id/parameterTitle"
+        android:layout_centerHorizontal="true"
+        android:textSize="35sp"/>
 
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/start_btn"
+        android:textSize="30sp"
         android:id="@+id/startBtn"
-        android:layout_gravity="center_horizontal|bottom" />
-</FrameLayout>
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="50sp"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        android:text="@string/param_title"
+        android:id="@+id/parameterTitle"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true" />
+</RelativeLayout>

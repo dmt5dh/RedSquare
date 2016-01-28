@@ -22,6 +22,11 @@
         <activity
             android:name=".QuestionnaireActivity"
             android:label="@string/title_activity_questionnaire"
+            android:screenOrientation="sensorLandscape" >
+        </activity>
+        <activity
+            android:name=".TaskCompleteScreen"
+            android:label="@string/title_activity_task_complete_screen"
             android:screenOrientation="sensorLandscape">
         </activity>
     </application>

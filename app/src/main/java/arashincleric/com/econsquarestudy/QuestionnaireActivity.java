@@ -115,13 +115,16 @@ public class QuestionnaireActivity extends Activity {
 
         Button submitButton = new Button(this); //Add submit button at the end
         submitButton.setText(R.string.submit_btn);
+        submitButton.setTextSize(35);
         submitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 boolean success = createQuestionnaireFile();
 
                 if (success) {
-                    Intent intent = new Intent(QuestionnaireActivity.this, MainActivity.class);
+                    Intent intent = new Intent(QuestionnaireActivity.this, TaskCompleteScreen.class);
+                    intent.putExtra("USERNAME", getIntent().getStringExtra("USERNAME"));
+                    intent.putExtra("POINTS", getIntent().getDoubleExtra("POINTS", 0));
                     startActivity(intent);
                     finish();
                 }

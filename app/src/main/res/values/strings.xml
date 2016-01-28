@@ -11,10 +11,11 @@
     <string name="email_error_match">E-mails do not match</string>
     <string name="email_error_empty">Please fill out all fields</string>
     <string name="email_error_invalid">Please enter valid email address</string>
+    <string name="email_error_redundant">You can only complete one session per email address.</string>
     <string name="cancel_btn">Cancel</string>
     <string name="rest_text">Rest Screen</string>
-    <string name="points_text">Number of points earned: (formula: #
-        red squares pressed + G × # gold squares pressed): %1$.2f</string>
+    <string name="points_text">Points earned: %1$.2f</string>
+    <string name="time_completed">Time completed: </string>
     <string name="remaining_time">Remaining time on screen: %1$d</string>
     <string name="start_btn">Start task</string>
     <string name="goto_questionnaire_btn">Go to questionnaire</string>
@@ -25,8 +26,11 @@
     <string name="seek_bar_text">%1$d / %2$d</string>
     <string name="questionnaire_alert">Please fill out all fields</string>
     <string name="answer_hint">Type answer here</string>
+    <string name="param_title">Program Parameters for this Session</string>
 
-    <string name="parameters_text">Minimum time: %1$d, Maximum time: %2$d, red worth 1 pt, gold worth
-    %3$.2f pt(s), gold appears at probability %4$.3f, maximum active time: %5$d, maximum rest time: %6$d</string>
+    <string name="parameters_text">Minimum time for task: %1$.2f minute(s)\nMaximum time per task: %2$.2f minute(s)\nPoints per Red Square: %3$.2f\nPoints per Gold Square: %4$.2f\nGold appears with probability %5$.3f\nMaximum Time per Active Screen: %6$d second(s)\nTime per Rest Screen: %7$d second(s)</string>
     <string name="title_activity_questionnaire">QuestionnaireActivity</string>
+    <string name="title_activity_task_complete_screen">TaskCompleteScreen</string>
+
+    <string name="complete_screen_msg">Thank you for participating! Your total points earned are: %1$.2f. We will send your payment within the 2 days via PayPal to the email address you provided: %2$s.</string>
 </resources>
