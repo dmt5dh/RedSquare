@@ -53,7 +53,7 @@ public class QuestionnaireActivity extends Activity {
         questionList.add(new QuestionScaleBar("How tiring did you find the game?", 5, "Too little", "Too much"));
 
         questionList.add(new Question("Do you have any suggestions for improvements in the game design?")); //Free response
-        questionList.add(new Question("Why did you decided to leave when you did?")); //Free response
+        questionList.add(new Question("Why did you decide to leave when you did?")); //Free response
 
         questionList.add(new QuestionRadioButtons("Would you be willing to come back for another trial under the same conditions?", 2, new String[]{"Yes", "No"}, false)); // Radio buttons
         questionList.add(new QuestionRadioButtons("How was the work environment? Mark all that apply.", 8, new String[]{"Friendly", "Quiet", "Meditative", "Exciting", "Boring", "Stressful", "Painful", "Relaxing"}, true));

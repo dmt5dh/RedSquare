@@ -28,7 +28,7 @@
     <string name="answer_hint">Type answer here</string>
     <string name="param_title">Program Parameters for this Session</string>
 
-    <string name="parameters_text">Minimum time for task: %1$.2f minute(s)\nMaximum time per task: %2$.2f minute(s)\nPoints per Red Square: %3$.2f\nPoints per Gold Square: %4$.2f\nGold appears with probability %5$.3f\nMaximum Time per Active Screen: %6$d second(s)\nTime per Rest Screen: %7$d second(s)</string>
+    <string name="parameters_text">Minimum time for task: %1$.2f minute(s)\nMaximum time for task: %2$.2f minute(s)\nPoints per Red Square: %3$.2f\nPoints per Gold Square: %4$.2f\nGold appears with probability %5$.3f\nMaximum Time per Active Screen: %6$d second(s)\nTime per Rest Screen: %7$d second(s)</string>
     <string name="title_activity_questionnaire">QuestionnaireActivity</string>
     <string name="title_activity_task_complete_screen">TaskCompleteScreen</string>
 

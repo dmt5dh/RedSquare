@@ -41,13 +41,13 @@ public class MainActivity extends FragmentActivity
 
     //CHANGE THESE VARIABLES
     //TIME IN MILLISECONDS
-    public final static long MANDATORY_WORK_TIME = 10000;
-    public final static long MAXIMUM_WORK_TIME = 300000;
-    public final static int MAXIMUM_ACTIVE_ON_TIME = 8000;
-    public final static int MAXIMUM_REST_TIME = 3000;
-    public final static double GOLD_SCORE_WEIGHT = 1.25;
-    public final static double RED_SCORE_WEIGHT = 1.00;
-    public final static double GOLD_PROBABILITY = 0.9;
+    public final static long MANDATORY_WORK_TIME = 600000;
+    public final static long MAXIMUM_WORK_TIME = 2400000;
+    public final static int MAXIMUM_ACTIVE_ON_TIME = 10000;
+    public final static int MAXIMUM_REST_TIME = 10000;
+    public final static double GOLD_SCORE_WEIGHT = 5.00; //Make sure to make this decimal
+    public final static double RED_SCORE_WEIGHT = 1.00; //Make sure to make this decimal
+    public final static double GOLD_PROBABILITY = 0.1;
     public final static boolean HIDE_REST_TIMER = false;
     //CHANGE ABOVE VARIABLES
 
@@ -74,9 +74,7 @@ public class MainActivity extends FragmentActivity
     private boolean passedMandatoryTime; //flag to fire the mandatory time code once hit
     private Button questionnaireBtn;
     private long timerPausedTime;
-    private ImageView pauseBtn;
 
-    private boolean isPaused;
     private boolean goldOnCurActive;
 
     private File filePath;
@@ -125,29 +123,6 @@ public class MainActivity extends FragmentActivity
         remainingTimerView = (TextView) findViewById(R.id.remainingTimer);
         taskInfo.setVisibility(View.GONE);
 
-        pauseBtn = (ImageView)findViewById(R.id.pauseBtn);
-        pauseBtn.setVisibility(View.GONE);
-        isPaused = false;
-        pauseBtn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(isPaused){
-                    resumeTimer(true);
-                    ((TaskScreenFragment) mContent).startTimer();
-                    pauseBtn.setImageResource(R.drawable.pause_btn);
-                    isPaused = false;
-                }
-                else{
-                    pauseTimer();
-
-                    logPause(false);
-
-                    ((TaskScreenFragment) mContent).pauseTimer();
-                    pauseBtn.setImageResource(R.drawable.resume_btn);
-                    isPaused = true;
-                }
-            }
-        });
 
         questionnaireBtn = (Button)findViewById(R.id.questionnaireBtn);
         questionnaireBtn.setVisibility(View.GONE);
@@ -292,7 +267,6 @@ public class MainActivity extends FragmentActivity
         if(HIDE_REST_TIMER){
             remainingTimerView.setVisibility(View.GONE);
         }
-        pauseBtn.setVisibility(View.VISIBLE);
 
         //Record time started
         timeStarted = Calendar.getInstance();
@@ -608,14 +582,6 @@ public class MainActivity extends FragmentActivity
         }
     }
 
-    /**
-     * Tell active screen to pause
-     * @return true if paused
-     */
-    @Override
-    public boolean isScreenPaused(){
-        return isPaused;
-    }
 
     /**
      * Put a listener on every view to hide softkeyboard if edittext not chosen

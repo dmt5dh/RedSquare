@@ -41,8 +41,8 @@ public class ParametersFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState){
         super.onViewCreated(view, savedInstanceState);
         TextView paramsView = (TextView) view.findViewById(R.id.parametersView);
-        double mandatoryTime = ((double)MainActivity.MANDATORY_WORK_TIME) / 1000;
-        double maxTime = ((double)MainActivity.MAXIMUM_WORK_TIME) / 1000;
+        double mandatoryTime = ((double)MainActivity.MANDATORY_WORK_TIME) / 60000;
+        double maxTime = ((double)MainActivity.MAXIMUM_WORK_TIME) / 60000;
         String params = String.format(getResources().getString(R.string.parameters_text),
                 mandatoryTime,
                 maxTime,

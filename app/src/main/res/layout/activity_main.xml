@@ -26,12 +26,6 @@
             android:layout_height="match_parent"
             android:orientation="horizontal">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/pauseBtn"
-                android:src="@drawable/pause_btn"/>
-
             <!--Task information-->
             <LinearLayout
                 android:layout_width="wrap_content"
